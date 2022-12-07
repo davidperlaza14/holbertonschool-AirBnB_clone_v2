@@ -1,6 +1,13 @@
 #!/usr/bin/python3
 """This module defines a class to manage file storage for hbnb clone"""
 import json
+from models.base_model import BaseModel
+from models.user import User
+from models.place import Place
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
 
 
 class FileStorage:
@@ -10,16 +17,16 @@ class FileStorage:
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        if cls is None:
-            return FileStorage.__objects
-
-        new_dict = {}
-        name_class = cls.__name__
-        key = FileStorage.__objects.keys()
-        for indx in key:
-            if name_class == indx.split(".")[0]:
-                new_dict[indx] = FileStorage.__objects[indx]
-        return new_dict
+        # print(f"inside of all : {type(cls)} : {cls}")
+        if cls:
+            dict = {}
+            for k, v in FileStorage.__objects.items():
+                # print(f"inside the loop :\n {k} : {v}")
+                # print("/*/*/*/*/*/*/*/*/*/*/*/*/**/*/*/*")
+                if type(v) == cls:
+                    dict[k] = v
+            return dict
+        return FileStorage.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -36,13 +43,6 @@ class FileStorage:
 
     def reload(self):
         """Loads storage dictionary from file"""
-        from models.base_model import BaseModel
-        from models.user import User
-        from models.place import Place
-        from models.state import State
-        from models.city import City
-        from models.amenity import Amenity
-        from models.review import Review
 
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
@@ -54,13 +54,16 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
-    
 
     def delete(self, obj=None):
-        """public instance method"""
-        if obj is not None:
-            key = obj.__class__.__name__ + "." + obj.id
-            del (FileStorage.__objects[key])
+        """Delete an obj from __objects"""
+        if (obj):
+            obj_delete = "{}.{}".format(type(obj).__name__, obj.id)
+            del FileStorage.__objects[obj_delete]
+
+    def close(self):
+        """Call 'reload()' method for deserializing the JSON file to objects"""
+        self.reload()
