@@ -19,16 +19,16 @@ class HBNBCommand(cmd.Cmd):
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-        'BaseModel': BaseModel, 'User': User, 'Place': Place,
-        'State': State, 'City': City, 'Amenity': Amenity,
-        'Review': Review
-    }
+               'BaseModel': BaseModel, 'User': User, 'Place': Place,
+               'State': State, 'City': City, 'Amenity': Amenity,
+               'Review': Review
+              }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-        'number_rooms': int, 'number_bathrooms': int,
-        'max_guest': int, 'price_by_night': int,
-        'latitude': float, 'longitude': float
-    }
+             'number_rooms': int, 'number_bathrooms': int,
+             'max_guest': int, 'price_by_night': int,
+             'latitude': float, 'longitude': float
+            }
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -37,6 +37,7 @@ class HBNBCommand(cmd.Cmd):
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
+
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -114,26 +115,33 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        line = args.split(' ')
-        if not line:
+        if not args:
             print("** class name missing **")
             return
-        elif line[0] not in HBNBCommand.classes:
+        args_array = args.split(' ')
+        args_dist = dict()
+        if args_array[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[line[0]]()
-        for indx in range(1, len(line)):
-            try:
-                line_1 = line[indx].split('=')
-                key = line_1[0]
-                value = line_1[1]
-                value = value.replace('_', ' ')
-                value = value.replace('\"', '')
-                if type(value) in (str, int, float):
-                    setattr(new_instance, key, value)
-            except Exception:
-                continue
-        # storage.save()
+        for i in range(1, len(args_array)):
+            param = args_array[i].split('=')
+            if param[1][0] == '"':
+                param[1] = param[1].strip('"')
+                param[1] = param[1].replace('\\"', '"')
+                param[1] = param[1].replace('_', ' ')
+            elif '.' in param[1]:
+                try:
+                    param[1] = float(param[1])
+                except Exception:
+                    continue
+            else:
+                try:
+                    param[1] = int(param[1])
+                except Exception:
+                    continue            
+            args_dist[param[0]] = param[1]
+        new_instance = HBNBCommand.classes[args_array[0]](**args_dist)
+        storage.save()
         print(new_instance.id)
         storage.save()
 
@@ -198,7 +206,7 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            del (storage.all()[key])
+            del(storage.all()[key])
             storage.save()
         except KeyError:
             print("** no instance found **")
@@ -291,7 +299,7 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] != ' ':
+            if not att_name and args[0] !=  ' ':
                 att_name = args[0]
             # check for quoted val arg
             if args[2] and args[2][0] == '\"':
@@ -330,7 +338,6 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
