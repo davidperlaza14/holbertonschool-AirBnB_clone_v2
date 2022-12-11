@@ -27,6 +27,7 @@ class FileStorage:
         return {key: object_ for key, object_ in FileStorage.__objects.items() if isinstance(object_,cls)}
 
     def delete(self, obj=None):
+        """Delete a given object from __objects, if it exists."""
         if obj:
             del(FileStorage.__objects[obj.to_dict()['__class__'] + '.' + obj.id])
 
