@@ -1,18 +1,19 @@
 #!/usr/bin/python3
-"""Defines the DBStorage engine."""
+"""
+Defines a new engine of storage
+Database mode, to be used with SQLAlchemy
+"""
 from os import getenv
-from models.base_model import Base
-from models.base_model import BaseModel
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.orm import Session, sessionmaker, scoped_session
+import models
 from models.amenity import Amenity
 from models.city import City
 from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
+from models.base_model import BaseModel, Base
 
 
 class DBStorage:
@@ -82,9 +83,93 @@ class DBStorage:
         Session = scoped_session(session_factory)
         self.__session = Session
 
-    # def close(self):
-    #     """close session, proper ending"""
-    #     self.__session.remove()
+    def close(self):
+        """close session, proper ending"""
+        self.__session.remove()
 
-    #def classes(self):
+    def classes(self):
         """ returns dictionary of valid classes """
+# #!/usr/bin/python3
+# """Defines the DBStorage engine."""
+
+# from sqlalchemy import create_engine, MetaData
+# from sqlalchemy.orm import Session
+# import os
+
+
+
+# class DBStorage:
+#     """
+#     Create our database with SQLAlchemy
+#     Alchemy is our best friend!
+#     """
+#     __engine = None
+#     __session = None
+
+#     def __init__(self):
+#         """
+#         Starting the engine
+#         """
+#         user = os.getenv('HBNB_MYSQL_USER')
+#         pwd = os.getenv('HBNB_MYSQL_PWD')
+#         host = os.getenv('HBNB_MYSQL_HOST')
+#         database = os.getenv('HBNB_MYSQL_DB')
+#         self.__engine = create_engine('mysql+mysqldb://{:s}:{:s}@{:s}/{:s}'
+#                                       .format(user, pwd, host, database),
+#                                       pool_pre_ping=True)
+#         metadata = MetaData()
+#         if os.getenv('HBNB_ENV') == 'test':
+#             metadata.drop_all()
+
+#     def all(self, cls=None):
+#         """
+#         Perform query on the current database session
+#         # Must return a dictionary with all objects according
+#         to class name passed in cls argument
+#         """
+#         ret_dict =dict()
+#         if cls:
+#             for obj in self.__session.query(cls).all():
+#                 ret_dict[obj.to_dict()['__class__']+ '_' + obj.id] = obj
+#         else:
+#             from models.user  import User
+#             from models.place  import Place
+#             from models.state  import State
+#             from models.city  import City
+#             from models.amenity  import Amenity
+#             from models.review  import Review
+
+#             class_list =[State, City, User, Place, Review, Amenity]
+#             for query_cls in class_list:
+#                 for obj in self.__session.query(query_cls).all():
+#                     ret_dict[obj.to_dict()['__class__']+ '_' + obj.id] =obj
+#         return ret_dict
+    
+#     def new(self, obj):
+#         """Adds the object to the current db session"""
+#         self.__session.add(obj)
+
+#     def save(self):
+#         """Commit all changes to current db session"""
+#         self.__session.commit()
+
+#     def delete(self, obj):
+#         """ Delete obj of current db session """
+#         if obj:
+#             self.__session.delete(obj)
+
+#     def reload(self):
+#         """Creates all tables from DB"""
+#         from models.base_model import BaseModel, Base
+#         from models.user  import User
+#         from models.place  import Place
+#         from models.state  import State
+#         from models.city  import City
+#         from models.amenity  import Amenity
+#         from models.review  import Review
+#         from sqlalchemy.orm import sessionmaker, scoped_session
+#         Base.metadata.create_all(self.__engine)
+#         session_factory = sessionmaker(bind=self.__engine,
+#                                         expire_on_commit=False)
+#         Session = scoped_session(session_factory)
+#         self.__session = Session()
